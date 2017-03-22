@@ -1,0 +1,38 @@
+#!/bin/bash
+cp *.out ./bin/
+
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+./bin/SequentialGOL.mic.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.mic"
+
+for i in 1 4 6 8 10 20 30 50 60 80 100 120 140 160 180 200 220 230 238 239
+do
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+	./bin/ThreadGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.mic"
+
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"
+	./bin/FastFlowGOL.mic.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.mic"	
+done

@@ -1,0 +1,5 @@
+#!/bin/bash
+make golhost
+cp *.out ./bin/
+./test_gen_host_5k $1
+./test_gen_host_10k $1

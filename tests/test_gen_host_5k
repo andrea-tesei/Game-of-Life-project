@@ -1,0 +1,39 @@
+#!/bin/bash
+make golhost
+cp *.out ./bin/
+
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+./bin/SequentialGOL.out -r 5000 -c 5000 -i 1000 -s 500 >> "./results/test_seq_$1_5k.host"
+
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+do
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+	./bin/ThreadGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_th_$1_5k_$i.host"
+
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"
+	./bin/FastFlowGOL.out -r 5000 -c 5000 -i 1000 -n $i -s 500 >> "./results/test_ff_$1_5k_$i.host"	
+done

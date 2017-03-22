@@ -1,0 +1,295 @@
+#!/bin/bash
+#####################################
+#				    				#
+#   Parsing GOL tests results and   #
+#   produce perfomance evaluation   #
+#				    				#
+#####################################
+
+RESULTS_PATH="$@"
+declare -a DEGREE_HOST=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)
+HASH_RESULT=""
+SEQ_TIME=0
+
+declare -a avg_times_host_ff
+declare -a avg_times_host_th
+for f in $RESULTS_PATH 
+do
+	unset time_values
+	declare -a time_values
+	while IFS='' read -r line || [[ -n "$line" ]]; do
+		if [[ $line == *"Hash"* ]];
+		then
+			if [[ $HASH_RESULT == "" ]];
+			then
+				HASH_RESULT=($(echo $line | tr -d '[:space:]' | awk '{split($0,a,"="); print a[2];}'))
+			else
+				temp=($(echo $line | tr -d '[:space:]' | awk '{split($0,a,"="); print a[2];}'))
+				if [[ $HASH_RESULT != $temp ]];
+				then
+					echo "Error in output validation $f";
+					break;
+				fi
+			fi
+		else
+			time_values+=($(echo $line | tr -d '[:space:]' | awk '{split($0,a,"="); print a[2];}'))
+		fi
+	done < $f
+	# Compute average completion time and save to file
+	sorted_time_values=($(printf "%s\n" "${time_values[@]}" | sort -n))
+	unset sorted_time_values[0]
+	unset sorted_time_values[${#sorted_time_values[@]}-1]
+	completionavg=0
+	for i in "${sorted_time_values[@]}" 
+	do
+		completionavg=`expr $completionavg + $i`
+	done
+	completionavg=$(awk "BEGIN {printf \"%.2f\",${completionavg}/${#sorted_time_values[@]}}")
+	# Parse filename. Arrives: test_[type]_[numtest]_[sizematrix]_[degree].host
+	test_type=($(echo $f | awk '{split($0,a,"/"); print a[4];}' | awk '{split($0,b,"."); print b[1];}'| awk '{split($0,c,"_"); print c[2];}')) # FF, Thread, Sequential
+	test_degree=($(echo $f | awk '{split($0,a,"/"); print a[4];}' | awk '{split($0,b,"."); print b[1];}'| awk '{split($0,c,"_"); print c[5];}'))
+	test_size=($(echo $f | awk '{split($0,a,"/"); print a[4];}' | awk '{split($0,b,"."); print b[1];}'| awk '{split($0,c,"_"); print c[4];}'))
+	test_num=($(echo $f | awk '{split($0,a,"/"); print a[4];}' | awk '{split($0,b,"."); print b[1];}'| awk '{split($0,c,"_"); print c[3];}'))
+	# put values in array for ff and thread
+	# then compute efficiency speedup and scalability and save to file with link to graph
+	if [[ $test_type == "seq" ]];
+	then
+		SEQ_TIME=$(awk "BEGIN {printf \"%.2f\",${completionavg}/1000}")
+	elif [[ $test_type == "ff" ]];
+	then
+		avg_times_host_ff[$test_degree]=$(awk "BEGIN {printf \"%.2f\",${completionavg}/1000}")
+	elif [[ $test_type == "th" ]];
+	then
+		avg_times_host_th[$test_degree]=$(awk "BEGIN {printf \"%.2f\",${completionavg}/1000}")
+	fi
+done
+
+declare -a speedup_host_ff
+declare -a speedup_host_th
+declare -a scalability_host_ff
+declare -a scalability_host_th
+declare -a efficiency_host_ff
+declare -a efficiency_host_th
+# Now we have all data needed for calculating permormance measures
+for i in "${DEGREE_HOST[@]}"
+do
+	speedup_host_ff[$i]=$(awk "BEGIN {printf \"%.2f\",${SEQ_TIME}/${avg_times_host_ff[$i]}}")
+	speedup_host_th[$i]=$(awk "BEGIN {printf \"%.2f\",${SEQ_TIME}/${avg_times_host_th[$i]}}") 
+	scalability_host_ff[$i]=$(awk "BEGIN {printf \"%.2f\",${avg_times_host_ff[1]}/${avg_times_host_ff[$i]}}")
+	scalability_host_th[$i]=$(awk "BEGIN {printf \"%.2f\",${avg_times_host_th[1]}/${avg_times_host_th[$i]}}") 
+	unset TSEQ_ID
+	TSEQ_ID=$(awk "BEGIN {printf \"%.2f\",${SEQ_TIME}/${i}}")
+	efficiency_host_ff[$i]=$(awk "BEGIN {printf \"%.2f\",${TSEQ_ID}/${avg_times_host_ff[$i]}}")
+	efficiency_host_th[$i]=$(awk "BEGIN {printf \"%.2f\",${TSEQ_ID}/${avg_times_host_th[$i]}}")
+done
+printf "Sequential time = $SEQ_TIME\n"
+printf "Completion time:\n"
+minff_avg_time=99999999.0
+minff_degree=0
+minth_avg_time=99999999.0
+minth_degree=0
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "$i"
+	else
+		printf "$i,"
+	fi
+done
+printf "|"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "${avg_times_host_ff[$i]}"
+	else
+		printf "${avg_times_host_ff[$i]},"
+	fi
+	if [[ $(awk "BEGIN { printf (${avg_times_host_ff[$i]} < $minff_avg_time) }") -eq 1 ]]
+	then
+		minff_avg_time=${avg_times_host_ff[$i]}
+		minff_degree=$i
+	fi
+done
+printf "\nMin completion FF = $minff_avg_time with par_degree = $minff_degree"
+printf "\n"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "$i"
+	else
+		printf "$i,"
+	fi
+done
+printf "|"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "${avg_times_host_th[$i]}"
+	else
+		printf "${avg_times_host_th[$i]},"
+	fi
+	if [[ $(awk "BEGIN { printf (${avg_times_host_th[$i]} < $minth_avg_time) }") -eq 1 ]]
+	then
+		minth_avg_time=${avg_times_host_th[$i]}
+		minth_degree=$i
+	fi
+done
+printf "\nMin completion time TH = $minth_avg_time with par_degree = $minth_degree"
+printf "\n"
+maxffsp=0.0
+maxffsp_degree=0
+maxthsp=0.0
+maxthsp_degree=0
+printf "Speedup:\n"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "$i"
+	else
+		printf "$i,"
+	fi
+done
+printf "|"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "${speedup_host_ff[$i]}"
+	else
+		printf "${speedup_host_ff[$i]},"
+	fi
+	if [[ $(awk "BEGIN { printf (${speedup_host_ff[$i]} > $maxffsp) }") -eq 1 ]]
+	then
+		maxffsp=${speedup_host_ff[$i]}
+		maxffsp_degree=$i
+	fi
+done
+printf "\n"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "$i"
+	else
+		printf "$i,"
+	fi
+done
+printf "|"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "${speedup_host_th[$i]}"
+	else
+		printf "${speedup_host_th[$i]},"
+	fi
+	if [[ $(awk "BEGIN { printf (${speedup_host_th[$i]} > $maxthsp) }") -eq 1 ]]
+	then
+		maxthsp=${speedup_host_th[$i]}
+		maxthsp_degree=$i
+	fi
+done
+printf "\nMax speedup FF = $maxffsp with par_degree = $maxffsp_degree"
+printf "\nMax speedup TH = $maxthsp with par_degree = $maxthsp_degree"
+maxscalff=0
+maxscalff_degree=0
+maxscalth=0
+maxscalth_degree=0
+printf "\nScalability:\n"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "$i"
+	else
+		printf "$i,"
+	fi
+done
+printf "|"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "${scalability_host_ff[$i]}"
+	else
+		printf "${scalability_host_ff[$i]},"
+	fi
+	if [[ $(awk "BEGIN { printf (${scalability_host_ff[$i]} > $maxscalff) }") -eq 1 ]]
+	then
+		maxscalff=${scalability_host_ff[$i]}
+		maxscalff_degree=$i
+	fi
+done
+printf "\n"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "$i"
+	else
+		printf "$i,"
+	fi
+done
+printf "|"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "${scalability_host_th[$i]}"
+	else
+		printf "${scalability_host_th[$i]},"
+	fi
+	if [[ $(awk "BEGIN { printf (${scalability_host_th[$i]} > $maxscalth) }") -eq 1 ]]
+	then
+		maxscalth=${scalability_host_th[$i]}
+		maxscalth_degree=$i
+	fi
+done
+printf "\nMax scalability FF = $maxscalff with par_degree = $maxscalff_degree"
+printf "\nMax scalability TH = $maxscalth with par_degree = $maxscalth_degree"
+printf "\nEfficiency:\n"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "$i"
+	else
+		printf "$i,"
+	fi
+done
+printf "|"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "${efficiency_host_ff[$i]}"
+	else
+		printf "${efficiency_host_ff[$i]},"
+	fi
+done
+printf "\n"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then
+		printf "$i"
+	else
+		printf "$i,"
+	fi
+done
+printf "|"
+for i in "${DEGREE_HOST[@]}"
+do
+	if [[ $i == "${DEGREE_HOST[${#DEGREE_HOST[@]}-1]}" ]]
+	then 
+		printf "${efficiency_host_th[$i]}"
+	else
+		printf "${efficiency_host_th[$i]},"
+	fi
+done
+printf "\n"
